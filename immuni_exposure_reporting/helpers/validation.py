@@ -12,6 +12,7 @@
 #    along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import sys
+import re
 
 from immuni_common.core.exceptions import SchemaValidationException
 
@@ -30,3 +31,20 @@ def validate_batch_index(batch_index: str) -> int:
     except ValueError:
         raise SchemaValidationException()
     return index
+
+
+def validate_batch_country(batch_country: str) -> str:
+    """
+    Validate the given batch country.
+    :param batch_country: the batch country to validate.
+    :return: the batch country, if valid.
+    :raises: SchemaValidationException if the given batch country is invalid.
+    """
+    try:
+        regex = re.compile(r"^[A-Z]{2}$", re.IGNORECASE)
+        match = regex.match(batch_country)
+        if not match:
+            raise ValueError()
+    except ValueError:
+        raise SchemaValidationException()
+    return batch_country
