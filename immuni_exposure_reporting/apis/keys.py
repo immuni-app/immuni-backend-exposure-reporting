@@ -31,7 +31,10 @@ from immuni_common.helpers.swagger import doc_exception
 from immuni_common.models.mongoengine.batch_file import BatchFile
 from immuni_common.models.mongoengine.batch_file_eu import BatchFileEu
 from immuni_exposure_reporting.core import config
-from immuni_exposure_reporting.helpers.validation import validate_batch_index, validate_batch_country
+from immuni_exposure_reporting.helpers.validation import (
+    validate_batch_country,
+    validate_batch_index,
+)
 from immuni_exposure_reporting.models.swagger import Index
 
 bp = Blueprint("keys", url_prefix="keys")
@@ -49,7 +52,7 @@ bp = Blueprint("keys", url_prefix="keys")
     HTTPStatus.OK.value,
     Index,
     description="The index of the oldest relevant TEK Chunk (no older than 14 days) and the index "
-                "of the newest available TEK Chunk.",
+    "of the newest available TEK Chunk.",
 )
 @cache(max_age=timedelta(minutes=config.MANIFEST_CACHE_TIME_IN_MINUTES))
 async def index(request: Request) -> HTTPResponse:
@@ -96,9 +99,8 @@ async def get_batch(request: Request, batch_index: str) -> HTTPResponse:
 @bp.route("/eu/<batch_country>/index", version=1, methods=["GET"])
 @doc.summary("Fetch TEK Chunk indexes for the selected country (caller: Mobile Client).")
 @doc.description(
-    "Return for the selected country the index of the oldest relevant TEK Chunk (no older than 14 days) and the "
-    "index of "
-    "the newest available TEK Chunk. "
+    "For the requested country, return the index of the oldest relevant TEK Chunk"
+    "(no older than 14 days) and the index of the newest available TEK Chunk. "
     "It is up to the Mobile Client not to download the same TEK Chunk more than once."
 )
 @doc_exception(SchemaValidationException)
@@ -107,27 +109,28 @@ async def get_batch(request: Request, batch_index: str) -> HTTPResponse:
     HTTPStatus.OK.value,
     Index,
     description="The index of the oldest relevant TEK Chunk (no older than 14 days) and the index "
-                "of the newest available TEK Chunk.",
+    "of the newest available TEK Chunk.",
 )
 @cache(max_age=timedelta(minutes=config.MANIFEST_CACHE_TIME_IN_MINUTES))
 async def index_eu(request: Request, batch_country: str) -> HTTPResponse:
     """
-    Return the index of the oldest relevant TEK Chunk (no older than 14 days) and the index of the
-    newest available TEK Chunk.
+    For the requested country, return the index of the oldest relevant TEK Chunk
+    (no older than 14 days) and the index of the newest available TEK Chunk.
     :param request: the HTTP request object.
     :param batch_country: the country of interest.
     :return: the indexes of the oldest relevant and newest available TEK Chunks.
     """
-    indexes = BatchFileEu.get_oldest_and_newest_indexes(country=validate_batch_country(batch_country),
-                                                        days=config.MANIFEST_LENGTH_IN_DAYS)
+    indexes = BatchFileEu.get_oldest_and_newest_indexes(
+        country=validate_batch_country(batch_country), days=config.MANIFEST_LENGTH_IN_DAYS
+    )
     return json_response(indexes)
 
 
 @bp.route("/eu/<batch_country>/<batch_index>", version=1, methods=["GET"])
-@doc.summary("Download TEKs for the selected country (caller: Mobile Client).")
+@doc.summary("Download TEKs for the requested country (caller: Mobile Client).")
 @doc.description(
-    "Given a specific TEK Chunk index, the Mobile Client downloads the associated TEK Chunk from "
-    "the Exposure Reporting Service."
+    "Given a specific TEK Chunk country and index, the Mobile Client downloads the associated "
+    "TEK Chunk from the Exposure Reporting Service."
 )
 @doc_exception(SchemaValidationException)
 @doc_exception(BatchNotFoundException)
@@ -148,8 +151,9 @@ async def get_batch_eu(request: Request, batch_country: str, batch_index: str) -
     :raises: BatchNotFoundException if the index is not associated with any TEK Chunk.
     """
     try:
-        batch = BatchFileEu.from_index(country=validate_batch_country(batch_country),
-                                       index=validate_batch_index(batch_index))
+        batch = BatchFileEu.from_index(
+            country=validate_batch_country(batch_country), index=validate_batch_index(batch_index)
+        )
     except DoesNotExist:
         raise BatchNotFoundException()
     return raw(batch.client_content, content_type="application/zip")

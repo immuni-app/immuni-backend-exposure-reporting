@@ -11,8 +11,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-import sys
 import re
+import sys
 
 from immuni_common.core.exceptions import SchemaValidationException
 
