@@ -61,7 +61,7 @@ async def test_batch_eu_not_found_v0(client: TestClient) -> None:
 
 
 @pytest.mark.parametrize("index", ("asd", "none", "12d", "-23", 0, -1, 23456789876543234567898765))
-async def test_batch_eu_weird_characters(client: TestClient, index: str) -> None:
+async def test_batch_eu_index_weird_characters(client: TestClient, index: str) -> None:
     response = await client.get(f"/v1/keys/eu/DK/{index}")
     assert response.status == 400
 
@@ -70,7 +70,7 @@ async def test_batch_eu_weird_characters(client: TestClient, index: str) -> None
 
 
 @pytest.mark.parametrize("country", ("ITA", "none", "DENMARK", "-23"))
-async def test_batch_eu_weird_characters(client: TestClient, country: str) -> None:
+async def test_batch_eu_country_weird_characters(client: TestClient, country: str) -> None:
     response = await client.get(f"/v1/keys/eu/{country}/1")
     assert response.status == 400
 
