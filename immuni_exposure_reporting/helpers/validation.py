@@ -16,6 +16,8 @@ import sys
 
 from immuni_common.core.exceptions import SchemaValidationException
 
+_VALID_COUNTRY_REGEX = r"^[A-Z]{2}$"
+
 
 def validate_batch_index(batch_index: str) -> int:
     """
@@ -41,7 +43,7 @@ def validate_batch_country(batch_country: str) -> str:
     :raises: SchemaValidationException if the given batch country is invalid.
     """
     try:
-        regex = re.compile(r"^[A-Z]{2}$", re.IGNORECASE)
+        regex = re.compile(_VALID_COUNTRY_REGEX, re.IGNORECASE)
         match = regex.match(batch_country)
         if not match:
             raise ValueError()
