@@ -23,6 +23,8 @@ from immuni_common.models.enums import TransmissionRiskLevel
 from immuni_common.models.mongoengine.batch_file_eu import BatchFileEu
 from immuni_common.models.mongoengine.temporary_exposure_key import TemporaryExposureKey
 
+_test_countries = ["DK", "DE", "AT", "ES"]
+
 
 def generate_random_key_data_eu(length: int = 128) -> str:
     letters = string.ascii_lowercase + string.ascii_uppercase
@@ -54,42 +56,44 @@ def create_random_batches_eu(
         end_date = datetime.utcnow()
     start_date = end_date - timedelta(days=num_batches)
     for index in range(num_batches):
-        generate_random_batch_eu(
-            index=index,
-            num_keys=key_per_batch,
-            period_start=start_date + timedelta(days=index),
-            period_end=start_date + timedelta(days=index + 1),
-            origin="DK",
-        )
+        for country in _test_countries:
+            generate_random_batch_eu(
+                index=index,
+                num_keys=key_per_batch,
+                period_start=start_date + timedelta(days=index),
+                period_end=start_date + timedelta(days=index + 1),
+                origin=country,
+            )
 
 
 @pytest.fixture()
 def batch_file_eu() -> BatchFileEu:
-    batch_eu = BatchFileEu(
-        index=1,
-        keys=[
-            TemporaryExposureKey(
-                key_data=base64.b64encode("first_key".encode("utf-8")).decode("utf-8"),
-                transmission_risk_level=TransmissionRiskLevel.low,
-                rolling_start_number=1,
-            ),
-            TemporaryExposureKey(
-                key_data=base64.b64encode("second_key".encode("utf-8")).decode("utf-8"),
-                transmission_risk_level=TransmissionRiskLevel.low,
-                rolling_start_number=2,
-            ),
-            TemporaryExposureKey(
-                key_data=base64.b64encode("third_key".encode("utf-8")).decode("utf-8"),
-                transmission_risk_level=TransmissionRiskLevel.highest,
-                rolling_start_number=3,
-            ),
-        ],
-        period_start=datetime.utcnow() - timedelta(days=1),
-        period_end=datetime.utcnow(),
-        sub_batch_count=2,
-        sub_batch_index=1,
-        origin="DK",
-        client_content=b"this_is_a_zip_file",
-    )
-    batch_eu.save()
+    for i in range(len(_test_countries)):
+        batch_eu = BatchFileEu(
+            index=1,
+            keys=[
+                TemporaryExposureKey(
+                    key_data=base64.b64encode("first_key".encode("utf-8")).decode("utf-8"),
+                    transmission_risk_level=TransmissionRiskLevel.low,
+                    rolling_start_number=1,
+                ),
+                TemporaryExposureKey(
+                    key_data=base64.b64encode("second_key".encode("utf-8")).decode("utf-8"),
+                    transmission_risk_level=TransmissionRiskLevel.low,
+                    rolling_start_number=2,
+                ),
+                TemporaryExposureKey(
+                    key_data=base64.b64encode("third_key".encode("utf-8")).decode("utf-8"),
+                    transmission_risk_level=TransmissionRiskLevel.highest,
+                    rolling_start_number=3,
+                ),
+            ],
+            period_start=datetime.utcnow() - timedelta(days=1),
+            period_end=datetime.utcnow(),
+            sub_batch_count=2,
+            sub_batch_index=1,
+            origin=_test_countries[i],
+            client_content=b"this_is_a_zip_file",
+        )
+        batch_eu.save()
     return batch_eu

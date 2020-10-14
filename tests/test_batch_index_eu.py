@@ -29,10 +29,11 @@ async def test_index_no_batches_eu(client: TestClient) -> None:
 
 @mock_config(config, "MANIFEST_CACHE_TIME_IN_MINUTES", timedelta(minutes=30).total_seconds())
 @pytest.mark.parametrize("num_batches, oldest, newest", ((1, 0, 0), (10, 0, 9), (20, 6, 19)))
-async def test_index_eu(client: TestClient, num_batches: int, oldest: int, newest: int) -> None:
+@pytest.mark.parametrize("country", ("DK", "DE", "AT", "ES"))
+async def test_index_eu(client: TestClient, num_batches: int, oldest: int, newest: int, country: str) -> None:
     create_random_batches_eu(num_batches)
 
-    response = await client.get("/v1/keys/eu/DK/index")
+    response = await client.get(f"/v1/keys/eu/{country}/index")
     assert response.status == 200
     assert response.headers["Cache-Control"] == "public, max-age=1800"
 
@@ -40,36 +41,40 @@ async def test_index_eu(client: TestClient, num_batches: int, oldest: int, newes
     assert actual == {"oldest": oldest, "newest": newest}
 
 
-async def test_batch_eu(client: TestClient, batch_file_eu: BatchFileEu) -> None:
-    response = await client.get("/v1/keys/eu/DK/1")
+@pytest.mark.parametrize("country", ("DK", "DE", "AT", "ES"))
+async def test_batch_eu(client: TestClient, batch_file_eu: BatchFileEu, country: str) -> None:
+    response = await client.get(f"/v1/keys/eu/{country}/1")
     assert response.status == 200
     assert response.headers["Cache-Control"] == "public, max-age=1296000"
 
     assert response.content_type == "application/zip"
 
 
-async def test_batch_eu_not_found(client: TestClient) -> None:
-    response = await client.get("/v1/keys/eu/DK/1")
+@pytest.mark.parametrize("country", ("DK", "DE", "AT", "ES"))
+async def test_batch_eu_not_found(client: TestClient, country: str) -> None:
+    response = await client.get(f"/v1/keys/eu/{country}/1")
     assert response.status == 404
     assert "Cache-Control" not in response.headers
 
 
-async def test_batch_eu_not_found_v0(client: TestClient) -> None:
-    response = await client.get("/v0/keys/eu/DK/1")
+@pytest.mark.parametrize("country", ("DK", "DE", "AT", "ES"))
+async def test_batch_eu_not_found_v0(client: TestClient, country: str) -> None:
+    response = await client.get(f"/v0/keys/eu/{country}/1")
     assert response.status == 404
     assert "Cache-Control" not in response.headers
 
 
 @pytest.mark.parametrize("index", ("asd", "none", "12d", "-23", 0, -1, 23456789876543234567898765))
-async def test_batch_eu_index_weird_characters(client: TestClient, index: str) -> None:
-    response = await client.get(f"/v1/keys/eu/DK/{index}")
+@pytest.mark.parametrize("country", ("DK", "DE", "AT", "ES"))
+async def test_batch_eu_index_weird_characters(client: TestClient, index: str, country: str) -> None:
+    response = await client.get(f"/v1/keys/eu/{country}/{index}")
     assert response.status == 400
 
     content = await response.json()
     assert content["message"] == "Request not compliant with the defined schema."
 
 
-@pytest.mark.parametrize("country", ("ITA", "none", "DENMARK", "-23"))
+@pytest.mark.parametrize("country", ("ITA", "none", "DENMARK", "-23", "it", "It"))
 async def test_batch_eu_country_weird_characters(client: TestClient, country: str) -> None:
     response = await client.get(f"/v1/keys/eu/{country}/1")
     assert response.status == 400
