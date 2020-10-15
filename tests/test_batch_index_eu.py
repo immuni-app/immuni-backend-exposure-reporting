@@ -30,7 +30,9 @@ async def test_index_no_batches_eu(client: TestClient) -> None:
 @mock_config(config, "MANIFEST_CACHE_TIME_IN_MINUTES", timedelta(minutes=30).total_seconds())
 @pytest.mark.parametrize("num_batches, oldest, newest", ((1, 0, 0), (10, 0, 9), (20, 6, 19)))
 @pytest.mark.parametrize("country", ("DK", "DE", "AT", "ES"))
-async def test_index_eu(client: TestClient, num_batches: int, oldest: int, newest: int, country: str) -> None:
+async def test_index_eu(
+    client: TestClient, num_batches: int, oldest: int, newest: int, country: str
+) -> None:
     create_random_batches_eu(num_batches)
 
     response = await client.get(f"/v1/keys/eu/{country}/index")
@@ -66,7 +68,9 @@ async def test_batch_eu_not_found_v0(client: TestClient, country: str) -> None:
 
 @pytest.mark.parametrize("index", ("asd", "none", "12d", "-23", 0, -1, 23456789876543234567898765))
 @pytest.mark.parametrize("country", ("DK", "DE", "AT", "ES"))
-async def test_batch_eu_index_weird_characters(client: TestClient, index: str, country: str) -> None:
+async def test_batch_eu_index_weird_characters(
+    client: TestClient, index: str, country: str
+) -> None:
     response = await client.get(f"/v1/keys/eu/{country}/{index}")
     assert response.status == 400
 
