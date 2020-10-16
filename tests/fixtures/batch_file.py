@@ -42,7 +42,9 @@ def generate_random_batch(
         )
         for _ in range(num_keys)
     ]
-    BatchFile(index=index, keys=keys, period_start=period_start, period_end=period_end).save()
+    BatchFile(
+        index=index, keys=keys, period_start=period_start, period_end=period_end, origin="IT"
+    ).save()
 
 
 def create_random_batches(
@@ -85,6 +87,7 @@ def batch_file() -> BatchFile:
         period_end=datetime.utcnow(),
         sub_batch_count=2,
         sub_batch_index=1,
+        origin="IT",
         client_content=b"this_is_a_zip_file",
     )
     batch.save()

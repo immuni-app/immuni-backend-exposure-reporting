@@ -18,6 +18,9 @@ from immuni_exposure_reporting.core import config
 from tests.fixtures.batch_file import *  # noqa isort:skip
 
 # noinspection PyUnresolvedReferences
+from tests.fixtures.batch_file_eu import *  # noqa isort:skip
+
+# noinspection PyUnresolvedReferences
 from tests.fixtures.core import *  # noqa isort:skip
 
 # noinspection PyUnresolvedReferences

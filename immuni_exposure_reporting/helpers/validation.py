@@ -11,9 +11,11 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import re
 import sys
 
 from immuni_common.core.exceptions import SchemaValidationException
+from immuni_common.models.marshmallow.fields import VALID_COUNTRY_REGEX
 
 
 def validate_batch_index(batch_index: str) -> int:
@@ -30,3 +32,20 @@ def validate_batch_index(batch_index: str) -> int:
     except ValueError:
         raise SchemaValidationException()
     return index
+
+
+def validate_batch_country(batch_country: str) -> str:
+    """
+    Validate the given batch country.
+    :param batch_country: the batch country to validate.
+    :return: the batch country, if valid.
+    :raises: SchemaValidationException if the given batch country is invalid.
+    """
+    try:
+        regex = re.compile(VALID_COUNTRY_REGEX)
+        match = regex.match(batch_country)
+        if not match:
+            raise ValueError()
+    except ValueError:
+        raise SchemaValidationException()
+    return batch_country
