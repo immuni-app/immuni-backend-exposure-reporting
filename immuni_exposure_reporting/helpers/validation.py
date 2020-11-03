@@ -29,8 +29,8 @@ def validate_batch_index(batch_index: str) -> int:
         index = int(batch_index)
         if index < 1 or index > sys.maxsize:
             raise ValueError()
-    except ValueError:
-        raise SchemaValidationException()
+    except ValueError as error:
+        raise SchemaValidationException() from error
     return index
 
 
@@ -46,6 +46,6 @@ def validate_batch_country(batch_country: str) -> str:
         match = regex.match(batch_country)
         if not match:
             raise ValueError()
-    except ValueError:
-        raise SchemaValidationException()
+    except ValueError as error:
+        raise SchemaValidationException() from error
     return batch_country

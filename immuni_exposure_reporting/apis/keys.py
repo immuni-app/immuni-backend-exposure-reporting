@@ -91,8 +91,8 @@ async def get_batch(request: Request, batch_index: str) -> HTTPResponse:
     """
     try:
         batch = BatchFile.from_index(validate_batch_index(batch_index))
-    except DoesNotExist:
-        raise BatchNotFoundException()
+    except DoesNotExist as error:
+        raise BatchNotFoundException() from error
     return raw(batch.client_content, content_type="application/zip")
 
 
@@ -154,6 +154,6 @@ async def get_batch_eu(request: Request, batch_country: str, batch_index: str) -
         batch = BatchFileEu.from_index(
             country=validate_batch_country(batch_country), index=validate_batch_index(batch_index)
         )
-    except DoesNotExist:
-        raise BatchNotFoundException()
+    except DoesNotExist as error:
+        raise BatchNotFoundException() from error
     return raw(batch.client_content, content_type="application/zip")
