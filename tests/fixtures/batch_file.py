@@ -69,12 +69,12 @@ def batch_file() -> BatchFile:
         keys=[
             TemporaryExposureKey(
                 key_data=base64.b64encode("first_key".encode("utf-8")).decode("utf-8"),
-                transmission_risk_level=TransmissionRiskLevel.low,
+                transmission_risk_level=TransmissionRiskLevel.CONFIRMED_TEST_LOW,
                 rolling_start_number=1,
             ),
             TemporaryExposureKey(
                 key_data=base64.b64encode("second_key".encode("utf-8")).decode("utf-8"),
-                transmission_risk_level=TransmissionRiskLevel.low,
+                transmission_risk_level=TransmissionRiskLevel.CONFIRMED_TEST_LOW,
                 rolling_start_number=2,
             ),
             TemporaryExposureKey(
